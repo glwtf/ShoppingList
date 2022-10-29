@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.liveShopList.observe(this){ item ->
-            Log.d("GLEB", item.toString())
+
         }
     }
 }
