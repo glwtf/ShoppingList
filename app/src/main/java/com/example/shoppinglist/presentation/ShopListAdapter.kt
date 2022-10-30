@@ -1,22 +1,16 @@
 package com.example.shoppinglist.presentation
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ListAdapter
 import com.example.shoppinglist.R
 import com.example.shoppinglist.domain.ShopItem
 
-class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>() {
-
-    var shoList = listOf<ShopItem>()
-    set(value) {
-        field = value
-        notifyDataSetChanged()
-    }
-
+class ShopListAdapter : ListAdapter<
+        ShopItem,
+        ShopItemViewHolder
+        >(ShopItemDiffCallBack())
+{
     var onShopItemLongClickListener : ((ShopItem) -> Unit)? = null
     var onShopItemClickListener : ((ShopItem) -> Unit)? = null
 
@@ -31,7 +25,7 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
     }
 
     override fun onBindViewHolder(holder: ShopItemViewHolder, position: Int) { //set data in view
-        val shopItem = shoList[position]
+        val shopItem = getItem(position)
         holder.tvName.text = shopItem.name
         holder.tvCount.text = shopItem.count.toString()
         holder.view.setOnLongClickListener {
@@ -44,18 +38,10 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
 
     }
 
-    override fun getItemCount() = shoList.size
-
     override fun getItemViewType(position: Int): Int {
-        val item = shoList[position]
+        val item = getItem(position)
         return if (item.enabled) VIEW_TYPE_ENABLED
         else VIEW_TYPE_DISABLED
-    }
-
-    class ShopItemViewHolder(val view: View): RecyclerView.ViewHolder(view) //class of viewHolder
-    {
-        val tvName = view.findViewById<TextView>(R.id.tv_name)
-        val tvCount = view.findViewById<TextView>(R.id.tv_count)
     }
 
     companion object {
