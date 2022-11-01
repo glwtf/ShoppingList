@@ -71,17 +71,16 @@ class ShopItemViewModel : ViewModel() {
     private fun parseCount(inputCount: String?) = inputCount?.trim()?.toIntOrNull() ?: 0
 
     private fun validateInput(name : String, count : Int) : Boolean {
-        return when {
-            name.isBlank() -> {
-                _errorInputName.value = true
-                false
-            }
-            count <= 0 -> {
-                _errorInputCount.value = true
-                false
-            }
-            else -> true
+        var ret = true
+        if (name.isBlank()) {
+            _errorInputName.value = true
+            ret = false
         }
+        if (count < 1) {
+            _errorInputCount.value = true
+            ret = false
+        }
+        return ret
     }
 
     fun resetErrorInputName() {
