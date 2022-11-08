@@ -5,6 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainer
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -16,20 +19,23 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var rvAdapter: ShopListAdapter
+    private lateinit var buttonAddItem : FloatingActionButton
+    private var shopItemContainer : FragmentContainerView? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        buttonAddItem = findViewById(R.id.button_add_shop_item)
+        shopItemContainer = findViewById(R.id.shop_item_container)
+
         setupRecyclerView()
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.liveShopList.observe(this){ item ->
             rvAdapter.submitList(item)
         }
-        val buttonAddItem = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
-        buttonAddItem.setOnClickListener {
-            val intent = ShopItemActivity.newIntentAddItem(this)
-            startActivity(intent)
-        }
+
+
     }
 
     private fun setupRecyclerView(){
@@ -56,8 +62,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClickListener() {
         rvAdapter.onShopItemClickListener = { shopItem ->
-            val intent = ShopItemActivity.newIntentEditItem(this, shopItem.id)
-            startActivity(intent)
+            if (shopItemContainer == null ) {
+                val intent = ShopItemActivity.newIntentEditItem(this, shopItem.id)
+                startActivity(intent)
+            }
+            else {
+                launchFragment(ShopItemFragment.newIntentEditItem(shopItem.id))
+            }
+        }
+
+        buttonAddItem.setOnClickListener {
+            if (shopItemContainer == null ) {
+                val intent = ShopItemActivity.newIntentAddItem(this)
+                startActivity(intent)
+            }
+            else {
+                launchFragment(ShopItemFragment.newIntentAddItem())
+            }
         }
     }
 
@@ -80,5 +101,13 @@ class MainActivity : AppCompatActivity() {
                 viewModel.deleteShopItem(item)
             }
         }).attachToRecyclerView(rvShopList)
+    }
+
+    private fun launchFragment(fragment : Fragment) {
+        supportFragmentManager.popBackStack()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.shop_item_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 }
