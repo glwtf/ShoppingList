@@ -20,6 +20,7 @@ import com.google.android.material.textfield.TextInputLayout
 class ShopItemFragment() : Fragment() {
 
     private lateinit var shopItemViewModel : ShopItemViewModel
+    private lateinit var onEditingFinished : onEditingFinishedListener
 
     private lateinit var tilName : TextInputLayout
     private lateinit var tilCount : TextInputLayout
@@ -29,6 +30,13 @@ class ShopItemFragment() : Fragment() {
 
     private var screenMode : String = UNKNOWN_MODE
     private var shopItemId : Int = ShopItem.UNDEFINED_ID
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is onEditingFinishedListener) {
+            onEditingFinished = context
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,7 +108,7 @@ class ShopItemFragment() : Fragment() {
 
     private fun setCloseListener() {
         shopItemViewModel.closeActivity.observe(viewLifecycleOwner) {
-            activity?.onBackPressed()
+            onEditingFinished.onEditingFinished()
         }
     }
 
@@ -159,6 +167,10 @@ class ShopItemFragment() : Fragment() {
                 etName.text?.toString(),
                 etCount.text?.toString())
         }
+    }
+
+    interface onEditingFinishedListener {
+        fun onEditingFinished()
     }
 
     companion object {
