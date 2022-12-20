@@ -16,7 +16,7 @@ abstract class AppDataBase: RoomDatabase() {
         private const val DB_NAME = "shop_item.db"
 
         fun getInstance(application: Application) : AppDataBase {
-            INSTANCE?.let {
+            INSTANCE?.let { //how work double check???
                 return it
             }
             synchronized(LOCK) {
