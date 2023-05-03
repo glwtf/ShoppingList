@@ -1,11 +1,9 @@
 package com.example.shoppinglist.presentation
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +13,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.shoppinglist.R
 import com.example.shoppinglist.domain.ShopItem
+import com.example.shoppinglist.presentation.viewmodel.ShopItemViewModel
+import com.example.shoppinglist.presentation.viewmodel.ViewModelFactory
 import com.google.android.material.textfield.TextInputLayout
+import javax.inject.Inject
 
 class ShopItemFragment() : Fragment() {
 
@@ -31,6 +32,13 @@ class ShopItemFragment() : Fragment() {
     private var screenMode : String = UNKNOWN_MODE
     private var shopItemId : Int = ShopItem.UNDEFINED_ID
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    private val component by lazy {
+        (requireActivity().application as MyApp).component
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is onEditingFinishedListener) {
@@ -40,6 +48,7 @@ class ShopItemFragment() : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        component.inject(this)
         parseParams()
     }
 
@@ -53,7 +62,10 @@ class ShopItemFragment() : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        shopItemViewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
+        shopItemViewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        )[ShopItemViewModel::class.java]
         initViews(view)
         when (screenMode) {
             MODE_EDIT -> launchEditMode()

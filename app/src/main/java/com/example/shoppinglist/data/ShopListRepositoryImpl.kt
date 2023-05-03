@@ -1,30 +1,37 @@
 package com.example.shoppinglist.data
 
-import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import com.example.shoppinglist.domain.ShopItem
 import com.example.shoppinglist.domain.ShopListRepository
-import kotlin.random.Random
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
-class ShopListRepositoryImpl(
-    application: Application
+class ShopListRepositoryImpl @Inject constructor(
+    private val shopItemListDao: ShopItemListDao,
+    private val mapper : ShopListMapper,
 ) : ShopListRepository {
 
-    private val shopItemListDao = AppDataBase.getInstance(application).shopListDao()
-    private val mapper = ShopListMapper()
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-    /*override fun getShopList() :  LiveData<List<ShopItem>> = MediatorLiveData<List<ShopItem>>()
-        .apply {
-            addSource(shopItemListDao.getShopList()) {
-                value = mapper.mapListDbModelToListEntity(it)
-            }
-        }*/
-    override fun getShopList() :  LiveData<List<ShopItem>>
-    = Transformations.map(shopItemListDao.getShopList()) {
-        mapper.mapListDbModelToListEntity(it)
+    override fun getShopList(): Flow<List<ShopItem>> {
+        val daoShopList = shopItemListDao.getShopList()
+        return daoShopList.mapLatest {
+            mapper.mapListDbModelToListEntity(it)
+        }
+    }
+
+    private fun <T, K> StateFlow<T>.transformStateFlow(
+        coroutineScope: CoroutineScope,
+        transform: (data: T) -> K
+    ) : StateFlow<K> {
+        return mapLatest{
+            transform(it)
+        }.stateIn(coroutineScope, SharingStarted.Eagerly, transform(value))
     }
 
     override suspend fun addShopItem(shopItem: ShopItem) {

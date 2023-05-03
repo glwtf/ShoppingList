@@ -1,4 +1,4 @@
-package com.example.shoppinglist.presentation
+package com.example.shoppinglist.presentation.recyclerview
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
