@@ -1,6 +1,8 @@
 package com.example.shoppinglist.domain
 
-class GetShopListUseCase(private val repository: ShopListRepository) {
+import javax.inject.Inject
+
+class GetShopListUseCase @Inject constructor(private val repository: ShopListRepository) {
 
     fun getShopList() = repository.getShopList()
 }

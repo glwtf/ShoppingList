@@ -1,20 +1,19 @@
 package com.example.shoppinglist.presentation
 
-import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentContainer
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoppinglist.R
-import com.example.shoppinglist.domain.ShopItem
+import com.example.shoppinglist.presentation.recyclerview.ShopListAdapter
+import com.example.shoppinglist.presentation.viewmodel.MainViewModel
+import com.example.shoppinglist.presentation.viewmodel.ViewModelFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), ShopItemFragment.onEditingFinishedListener {
 
@@ -23,15 +22,22 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.onEditingFinishedList
     private lateinit var buttonAddItem : FloatingActionButton
     private var shopItemContainer : FragmentContainerView? = null
 
+    @Inject lateinit var viewModelFactory: ViewModelFactory
+
+    private val component by lazy {
+        (application as MyApp).component
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        component.inject(this)
+
         setContentView(R.layout.activity_main)
         buttonAddItem = findViewById(R.id.button_add_shop_item)
         shopItemContainer = findViewById(R.id.shop_item_container)
 
         setupRecyclerView()
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        viewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
         viewModel.liveShopList.observe(this){ item ->
             rvAdapter.submitList(item)
         }
