@@ -5,14 +5,19 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoppinglist.R
+import com.example.shoppinglist.domain.ShopItem
 import com.example.shoppinglist.presentation.recyclerview.ShopListAdapter
 import com.example.shoppinglist.presentation.viewmodel.MainViewModel
 import com.example.shoppinglist.presentation.viewmodel.ViewModelFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), ShopItemFragment.onEditingFinishedListener {
@@ -38,8 +43,12 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.onEditingFinishedList
 
         setupRecyclerView()
         viewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
-        viewModel.liveShopList.observe(this){ item ->
-            rvAdapter.submitList(item)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.liveShopList.collect{ item ->
+                    rvAdapter.submitList(item)
+                }
+            }
         }
 
 
