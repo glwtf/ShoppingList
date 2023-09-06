@@ -7,5 +7,4 @@ import com.example.shoppinglist.di.DaggerAppComponent
 class MyApp : Application() {
 
     var component: AppComponent = DaggerAppComponent.factory().create(this)
-
 }

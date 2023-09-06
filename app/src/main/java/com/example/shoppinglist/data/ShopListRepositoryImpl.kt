@@ -1,5 +1,6 @@
 package com.example.shoppinglist.data
 
+import androidx.paging.PagingSource
 import com.example.shoppinglist.domain.ShopItem
 import com.example.shoppinglist.domain.ShopListRepository
 import kotlinx.coroutines.CoroutineScope
@@ -7,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -16,22 +18,8 @@ class ShopListRepositoryImpl @Inject constructor(
     private val mapper : ShopListMapper,
 ) : ShopListRepository {
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
-
-    override fun getShopList(): Flow<List<ShopItem>> {
-        val daoShopList = shopItemListDao.getShopList()
-        return daoShopList.mapLatest {
-            mapper.mapListDbModelToListEntity(it)
-        }
-    }
-
-    private fun <T, K> StateFlow<T>.transformStateFlow(
-        coroutineScope: CoroutineScope,
-        transform: (data: T) -> K
-    ) : StateFlow<K> {
-        return mapLatest{
-            transform(it)
-        }.stateIn(coroutineScope, SharingStarted.Eagerly, transform(value))
+    override fun getShopList(): PagingSource<Int, ShopItem> {
+        return shopItemListDao.getShopList()
     }
 
     override suspend fun addShopItem(shopItem: ShopItem) {
