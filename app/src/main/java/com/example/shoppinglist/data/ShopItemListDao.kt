@@ -1,16 +1,18 @@
 package com.example.shoppinglist.data
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.shoppinglist.domain.ShopItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ShopItemListDao {
 
     @Query("SELECT * FROM shop_items")
-    fun getShopList(): Flow<List<ShopItemDbModel>>
+    fun getShopList(): PagingSource<Int, ShopItem>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addShopItemList(shopItemDbModel: ShopItemDbModel)

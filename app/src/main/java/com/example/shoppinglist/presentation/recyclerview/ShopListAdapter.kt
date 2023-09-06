@@ -2,11 +2,12 @@ package com.example.shoppinglist.presentation.recyclerview
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.ListAdapter
 import com.example.shoppinglist.R
 import com.example.shoppinglist.domain.ShopItem
 
-class ShopListAdapter : ListAdapter<
+class ShopListAdapter : PagingDataAdapter<
         ShopItem,
         ShopItemViewHolder
         >(ShopItemDiffCallBack())
@@ -26,21 +27,24 @@ class ShopListAdapter : ListAdapter<
 
     override fun onBindViewHolder(holder: ShopItemViewHolder, position: Int) { //set data in view
         val shopItem = getItem(position)
-        holder.tvName.text = shopItem.name
-        holder.tvCount.text = shopItem.count.toString()
-        holder.view.setOnLongClickListener {
-            onShopItemLongClickListener?.invoke(shopItem)
-            true
+        shopItem?.let {
+            holder.tvName.text = shopItem.name
+            holder.tvCount.text = shopItem.count.toString()
+            holder.view.setOnLongClickListener {
+                onShopItemLongClickListener?.invoke(shopItem)
+                true
+            }
+            holder.view.setOnClickListener {
+                onShopItemClickListener?.invoke(shopItem)
+            }
         }
-        holder.view.setOnClickListener {
-            onShopItemClickListener?.invoke(shopItem)
-        }
-
     }
+
+    fun getItemByPos(position: Int) = getItem(position)
 
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
-        return if (item.enabled) VIEW_TYPE_ENABLED
+        return if (item?.enabled == true) VIEW_TYPE_ENABLED
         else VIEW_TYPE_DISABLED
     }
 

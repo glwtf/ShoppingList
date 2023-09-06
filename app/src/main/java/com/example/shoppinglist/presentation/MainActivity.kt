@@ -12,7 +12,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoppinglist.R
-import com.example.shoppinglist.domain.ShopItem
 import com.example.shoppinglist.presentation.recyclerview.ShopListAdapter
 import com.example.shoppinglist.presentation.viewmodel.MainViewModel
 import com.example.shoppinglist.presentation.viewmodel.ViewModelFactory
@@ -46,7 +45,7 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.onEditingFinishedList
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.liveShopList.collect{ item ->
-                    rvAdapter.submitList(item)
+                    rvAdapter.submitData(item)
                 }
             }
         }
@@ -113,8 +112,8 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.onEditingFinishedList
             ): Boolean { return false }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val item = rvAdapter.currentList[viewHolder.adapterPosition]
-                viewModel.deleteShopItem(item)
+                val item = rvAdapter.getItemByPos(viewHolder.adapterPosition)
+                item?.let { viewModel.deleteShopItem(item) }
             }
         }).attachToRecyclerView(rvShopList)
     }

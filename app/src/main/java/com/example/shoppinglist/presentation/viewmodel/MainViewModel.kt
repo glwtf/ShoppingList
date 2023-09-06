@@ -2,25 +2,28 @@ package com.example.shoppinglist.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.example.shoppinglist.domain.*
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
     getShopListUseCase: GetShopListUseCase,
     private val deleteShopItemUseCase: DeleteShopItemUseCase,
-    private val editShopItemUseCase: EditShopItemUseCase
+    private val editShopItemUseCase: EditShopItemUseCase,
 ) : ViewModel() {
 
-    private val initialValue = listOf(ShopItem("", 0, false))
-
-    val liveShopList = getShopListUseCase.getShopList().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = initialValue
-    )
+    val liveShopList = Pager(
+        PagingConfig(
+            pageSize = 10,
+            initialLoadSize = 10,
+            enablePlaceholders = false
+        )
+    ) {
+        getShopListUseCase.getShopList()
+    }.flow.cachedIn(viewModelScope)
 
     fun deleteShopItem(item: ShopItem) {
         viewModelScope.launch {
