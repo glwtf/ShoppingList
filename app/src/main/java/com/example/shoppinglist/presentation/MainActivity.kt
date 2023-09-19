@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.onEditingFinishedList
             ): Boolean { return false }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val item = rvAdapter.getItemByPos(viewHolder.adapterPosition)
+                val item = rvAdapter.getItemByPos(viewHolder.absoluteAdapterPosition)
                 item?.let { viewModel.deleteShopItem(item) }
             }
         }).attachToRecyclerView(rvShopList)
